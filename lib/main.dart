@@ -140,7 +140,7 @@ class _MortgageFormState extends State<MortgageForm> {
             var mortgage = Provider.of<Mortgage>(context, listen: false);
 
             await SharedPreferencesHelper.setString("amount", _textControllerAmount.text);
-            await SharedPreferencesHelper.setString("interestRate", interestRate!.toStringAsFixed(2));
+            await SharedPreferencesHelper.setString("interestRate", interestRate!.toStringAsFixed(4));
             await SharedPreferencesHelper.setInt("years", years!);
             mortgage.update(amount: Decimal.parse(_textControllerAmount.text), rate: interestRate!, years: years!);
 
