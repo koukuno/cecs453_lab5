@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 import 'package:provider/provider.dart';
+import 'helper/shared_preferences_helper.dart';
 import 'mortgage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesHelper.init();
+
+  final amount = SharedPreferencesHelper.getString("amount");
+  final rate = SharedPreferencesHelper.getString("interestRate");
+  final years = SharedPreferencesHelper.getInt("years");
+
   runApp(ChangeNotifierProvider(
-      create: (context) => Mortgage(amount: Decimal.fromInt(100000), rate: Decimal.parse("0.02"), years: 30),
+      create: (context) => Mortgage(amount: Decimal.parse(amount ?? "100000"), rate: Decimal.parse(rate ?? "0.02"), years: years ?? 30),
       child: const MortgageApp()
   ));
 }
@@ -121,7 +129,7 @@ class _MortgageFormState extends State<MortgageForm> {
           Text("Interest Rate: ${interestRate != null ? (interestRate! * Decimal.fromInt(100)).toStringAsFixed(2)  : "unknown"}%"),
         ]),
         const SizedBox(height: 12),
-        ElevatedButton(child: const Text("Done"), onPressed: () {
+        ElevatedButton(child: const Text("Done"), onPressed: () async {
           try {
             Decimal.parse(_textControllerAmount.text);
           } on FormatException {
@@ -130,7 +138,12 @@ class _MortgageFormState extends State<MortgageForm> {
 
           if (_textControllerAmount.text.isNotEmpty && interestRate != null && years != null) {
             var mortgage = Provider.of<Mortgage>(context, listen: false);
+
+            await SharedPreferencesHelper.setString("amount", _textControllerAmount.text);
+            await SharedPreferencesHelper.setString("interestRate", interestRate!.toStringAsFixed(2));
+            await SharedPreferencesHelper.setInt("years", years!);
             mortgage.update(amount: Decimal.parse(_textControllerAmount.text), rate: interestRate!, years: years!);
+
             Navigator.pop(context);
             return;
           }
