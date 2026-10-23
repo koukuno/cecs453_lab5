@@ -144,8 +144,9 @@ class _MortgageFormState extends State<MortgageForm> {
             await SharedPreferencesHelper.setInt("years", years!);
             mortgage.update(amount: Decimal.parse(_textControllerAmount.text), rate: interestRate!, years: years!);
 
-            Navigator.pop(context);
-            return;
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           }
         }),
       ])),
