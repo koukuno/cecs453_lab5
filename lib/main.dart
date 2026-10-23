@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
+import 'package:provider/provider.dart';
 import 'mortgage.dart';
 
 void main() {
-  runApp(const MortgageApp());
+  runApp(ChangeNotifierProvider(
+      create: (context) => Mortgage(amount: Decimal.fromInt(100000), rate: Decimal.parse("0.02"), years: 30),
+      child: const MortgageApp()
+  ));
 }
 
 class MortgageApp extends StatelessWidget {
@@ -125,11 +129,9 @@ class _MortgageFormState extends State<MortgageForm> {
           }
 
           if (_textControllerAmount.text.isNotEmpty && interestRate != null && years != null) {
-            Navigator.pop(context, Mortgage(amount: Decimal.parse(_textControllerAmount.text), rate: interestRate!, years: years!));
-            setState(() {
-              interestRate = null;
-              years = 30;
-            });
+            var mortgage = Provider.of<Mortgage>(context, listen: false);
+            mortgage.update(amount: Decimal.parse(_textControllerAmount.text), rate: interestRate!, years: years!);
+            Navigator.pop(context);
             return;
           }
         }),
@@ -139,14 +141,7 @@ class _MortgageFormState extends State<MortgageForm> {
 }
 
 class _MortgagePageState extends State<MortgageHomePage> {
-  Mortgage? _mortgage;
   bool acceptedTerms = false;
-
-  void _updateMortgage({required Decimal amount, required Decimal rate, required int years}) {
-    setState(() {
-      _mortgage = Mortgage(amount: amount, rate: rate, years: years);
-    });
-  }
 
   Future<bool?> showTermsDialog({required BuildContext context}) async
   {
@@ -162,17 +157,14 @@ class _MortgagePageState extends State<MortgageHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> infoWidgets = [];
+    final mortgage = Provider.of<Mortgage>(context);
 
-    if (_mortgage != null) {
-      infoWidgets.add(Text("Principal Amount: \$${_mortgage!.amount.toStringAsFixed(2)}"));
-      infoWidgets.add(Text("Rate: ${_mortgage!.rate * Decimal.fromInt(100)}%"));
-      infoWidgets.add(Text("Years: ${_mortgage!.years}"));
-      infoWidgets.add(Text("Monthly Payment: \$${_mortgage!.formatMonthlyPayment()}"));
-      infoWidgets.add(Text("Total Payment: \$${_mortgage!.formatTotalPayment()}"));
-    } else {
-      infoWidgets.add(const Text("Please set a Mortgage by tapping on Modify Data below"));
-    }
+    List<Widget> infoWidgets = [];
+    infoWidgets.add(Text("Principal Amount: \$${mortgage.amount.toStringAsFixed(2)}"));
+    infoWidgets.add(Text("Rate: ${mortgage.rate * Decimal.fromInt(100)}%"));
+    infoWidgets.add(Text("Years: ${mortgage.years}"));
+    infoWidgets.add(Text("Monthly Payment: \$${mortgage.formatMonthlyPayment()}"));
+    infoWidgets.add(Text("Total Payment: \$${mortgage.formatTotalPayment()}"));
 
     return Scaffold(
       appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: const Text("Home")),
@@ -184,12 +176,7 @@ class _MortgagePageState extends State<MortgageHomePage> {
             });
           }),
           ElevatedButton(child: const Text("Modify Data"), onPressed: () async {
-            final mortgage = await Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => MortgageForm()));
-            if (mortgage != null) {
-              setState(() {
-                _mortgage = mortgage;
-              });
-            }
+            await Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => MortgageForm()));
           }),
         ],
       ),
