@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "cecs453_lab4" "\0"
+            VALUE "FileDescription", "cecs453_lab5" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "cecs453_lab4" "\0"
+            VALUE "InternalName", "cecs453_lab5" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "cecs453_lab4.exe" "\0"
-            VALUE "ProductName", "cecs453_lab4" "\0"
+            VALUE "OriginalFilename", "cecs453_lab5.exe" "\0"
+            VALUE "ProductName", "cecs453_lab5" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
